@@ -7,7 +7,7 @@ from random import randint
 
 
 ###############
-MODIFICA QUESTI PARAMETRI
+#MODIFICA QUESTI PARAMETRI
 ###############
 numero_citta = 1
 citta_riferimento = "----nome citta riferimento-----"
@@ -18,7 +18,7 @@ password = ""
 
 
 ##############
-INIZIO
+#INIZIO
 ##############
 
 
