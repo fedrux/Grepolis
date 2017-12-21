@@ -1,4 +1,3 @@
-
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
@@ -10,7 +9,7 @@ from random import randint
 #MODIFICA QUESTI PARAMETRI
 ###############
 numero_citta = 1
-citta_riferimento = "----nome citta riferimento-----"
+citta_riferimento = ""
 username = ""
 password = ""
 
@@ -22,9 +21,15 @@ password = ""
 ##############
 
 
-# senato, caverna, legno, pietra, argento, mercato, porto, casema, muro, magazzino, fattoria, accademia, tempio, terme, torre
+nomi_ita = ["senato", "caverna", "legno", "pietra", "argento", "mercato", "porto", "caserma", "muro", "magazzino", "fattoria", "accademia", "tempio", "terme", "torre"]
+nomi = ["main", "hide", "lumber", "stoner", "ironer", "market", "docks", "barraks", "wall", "storage", "farm", "academy", "temple", "terme", "torre"]
+
+matrix_buildings_real = [[0 for i in xrange(15)] for i in xrange(numero_citta)]
+
 
 matrix_buildings = [
+    [14, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 14, 10, 0, 0],#per arrivare alla coloniale piu in fretta possibile
+
     [24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
     [24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
     [24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
@@ -68,17 +73,17 @@ def next_town(br):
         print("impossibile cambiare citta")
 
 
-    
+
 
 
 br = webdriver.Chrome()
 
 
-TEMPO = 300 # 10 minuti di tempo refrattario
+TEMPO = 600 # 5 minuti di tempo refrattario
 
 #start it up
 print("Avvio di chrome....")
-print(rand_time)
+print(rand_time())
 
 
 br.get("https://it.grepolis.com/")
@@ -105,7 +110,7 @@ for i in search:
 
 print("Avvio Gioco")
 
-time.sleep(10)
+time.sleep(3)
 
 
 try:
@@ -126,13 +131,13 @@ while(True):
         break
     else:
         next_town(br)
-    
 
- 
+
+
 
 
 while(True):
-    
+
     try:
         search = br.find_elements_by_css_selector(".world_name div")
         a = 0
@@ -144,90 +149,159 @@ while(True):
             a += 1
     except:
         print("gia all'interno del gioco")
-        
-        
-    try:
-        search = br.find_element_by_css_selector(".island_view div")
-        search.click()
-        search = br.find_element_by_css_selector(".btn_jump_to_town div")
-        search.click()
-        print("visuale isola")
-    except NoSuchElementException:
-        print("visuale isola non disponibile")
 
-    time.sleep(4)
 
-    
     for n_city in range(0, numero_citta):
-        print(get_nome_citta(br))
-        
-        start = time.time()
+		time.sleep(1)
+		print(get_nome_citta(br))
 
-        search = br.find_elements_by_xpath("//*[@data-same_island='true']")
-        print(len(search))
-        i = 0
-        for sc in search:
-
-            print("agisco sul villaggio " + str(i + 1))
-
-            time.sleep(rand_time()+1)
-
-            search = br.find_elements_by_xpath("//*[@data-same_island='true']") #.owned
+		try:
+			search = br.find_element_by_css_selector(".city_overview div")
+			search.click()
+			print("visuale citta")
+		except:
+			print("visuale citta non disponibile")
 
 
-            a = -1
-            for sc in search:
-                a += 1
-                if(a == i):
-                    try:
-                        sc.click()
-                    except:
-                        print("impossibile aprire pannello villagio")
-
-                    time.sleep(rand_time())
+		try:
+			legno = br.find_element_by_css_selector(".ui_resources_bar .wood .amount").text
+			pietra = br.find_element_by_css_selector(".ui_resources_bar .stone .amount").text
+			argento = br.find_element_by_css_selector(".ui_resources_bar .iron .amount").text
+			pop = br.find_element_by_css_selector(".ui_resources_bar .population .amount").text
+			print("parametri citta: " + legno + " "  + pietra + " "  + argento + " "  + pop + " " )
+		except:
+			print("impossibile recuperare parametri citta")
 
 
-                    try:
-                        ele = br.find_element_by_css_selector(".card_click_area")
-                        ele.click()
-                    except:
-                        print("impossibile raccogliere risorse")
+		try:
+			gratis = br.find_element_by_css_selector(".btn_time_reduction")
+			if(gratis.text == "gratis"):
+				gratis.click()
+				print("coda velocizzata")
+			else:
+				print("impossibile velocizzare coda")
+		except:
+			print("errore nel velocizzare coda")
 
 
-                    time.sleep(rand_time())
+		if(int(pop) <= 20):
+			print("Attenzione la popolazione e a 0")
+			br.execute_script("BuildingMain.buildBuilding('farm', 20);")
 
 
-                    try:
-                        ele = br.find_element_by_css_selector(".buttons_container .close")
-                        ele.click()
-                    except:
-                        print("impossibile chiudere")
+		try:
+			senato = br.find_element_by_xpath("//*[@id='building_main_area_main']")
+			senato.click()
+			print("visuale senato")
+			time.sleep(2)
+		except:
+			print("visuale senato non disponibile")
+
+		edifici = br.find_elements_by_css_selector(".white")
+		print("edifici ")
+		#print edifici
+
+		cnt_ed = 0
+		for ed in edifici:
+			matrix_buildings_real[n_city][cnt_ed] = int(ed.text)
+			cnt_ed += 1
+
+
+		print matrix_buildings[n_city]
+		print matrix_buildings_real[n_city]
+
+		for num_edificio in range(0, 13):
+			if(matrix_buildings_real[n_city][num_edificio] < matrix_buildings[0][num_edificio]):
+				print("Edificio "+ nomi_ita[num_edificio] +" sottosviluppato")
+				comando_up = "BuildingMain.buildBuilding('"+nomi[num_edificio]+"', 50);"
+				br.execute_script(comando_up)
+				#print("Sviluppo edificio "+ nomi[num_edificio] +" sottosviluppato")
+
+		webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+
+
+		print("fine buildings up, wait 5s")
+		time.sleep(5)
+
+		try:
+			search = br.find_element_by_css_selector(".island_view div")
+			search.click()
+			search = br.find_element_by_css_selector(".btn_jump_to_town div")
+			search.click()
+			print("visuale isola")
+		except:
+			print("visuale isola non disponibile")
+
+		time.sleep(4)
+
+
+		search = br.find_elements_by_xpath("//*[@data-same_island='true']")
+		print(len(search))
+		i = 0
+		start = time.time()
+		for sc in search:
+
+			print("agisco sul villaggio " + str(i + 1))
+
+			time.sleep(rand_time()+1)
+
+			search = br.find_elements_by_xpath("//*[@data-same_island='true']") #.owned
+
+
+			a = -1
+			for sc in search:
+				a += 1
+				if(a == i):
+					try:
+						sc.click()
+					except:
+						print("impossibile aprire pannello villagio")
+
+					time.sleep(rand_time())
+
+
+					try:
+						ele = br.find_element_by_css_selector(".card_click_area")
+						ele.click()
+					except:
+						print("impossibile raccogliere risorse")
+
+
+					time.sleep(rand_time())
+
+
+					'''try:
+						ele = br.find_element_by_css_selector(".buttons_container .close")
+						ele.click()
+					except:
+						print("impossibile chiudere")
+					'''
+					webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
 
 
 
 
 
-            i += 1
-            time.sleep(rand_time())
- 
+			i += 1
+			time.sleep(rand_time())
+
         # prox citta
-        
-        next_town(br)
-        
- 
+
+		next_town(br)
+
+
     end = time.time()
     print("tempo impiegato: " + str(int(end - start)))
 
-    tempo_attesa = TEMPO - int(end - start)
+    tempo_attesa = TEMPO - (int(end - start))*0.85
     if(tempo_attesa < 5):
         tempo_attesa = 5
 
-    tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*11/7
+    tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*19/7
 
     print("prossimo giro tra: " + str(tempo_attesa) + " + " + str(tempo_r) + " secondi")
-    
+
     for i in range(0, int(tempo_attesa + tempo_r)):
         print(int(tempo_attesa + tempo_r - i))
         time.sleep(1)
-    
 
