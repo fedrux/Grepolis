@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 import time
+import sys
 from random import randint
 
 
@@ -9,9 +10,9 @@ from random import randint
 #MODIFICA QUESTI PARAMETRI
 ###############
 numero_citta = 1
-citta_riferimento = ""
-username = ""
-password = ""
+citta_riferimento = "44.01"
+username = "fedrun"
+password = "drnfrc97"
 
 
 
@@ -28,11 +29,12 @@ matrix_buildings_real = [[0 for i in xrange(15)] for i in xrange(numero_citta)]
 
 
 matrix_buildings = [
-    [14, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 14, 10, 0, 0],#per arrivare alla coloniale piu in fretta possibile
+	[20, 10, 15, 10, 10, 10, 10, 10, 0, 20, 30, 28, 10, 0, 0],#per arrivare alla conquista piu infretta possibile
+	[14, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 14, 10, 0, 0],#per arrivare alla coloniale piu infretta possibile
 
-    [24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
-    [24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
-    [24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
+	[24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
+	[24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
+	[24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
 ]
 
 matrix_caserma = [
@@ -47,7 +49,7 @@ matrix_porto = [
     [0, 200, 0, 0, 0, 0, 0, 0, 0, 0],
 ]
 
-
+err_senato = False
 
 
 
@@ -69,7 +71,7 @@ def next_town(br):
         print(get_nome_citta(br))
         print("prossima citta")
         time.sleep(rand_time())
-    except NoSuchElementException:
+    except:
         print("impossibile cambiare citta")
 
 
@@ -178,6 +180,7 @@ while(True):
 			if(gratis.text == "gratis"):
 				gratis.click()
 				print("coda velocizzata")
+				time.sleep(2)
 			else:
 				print("impossibile velocizzare coda")
 		except:
@@ -185,7 +188,7 @@ while(True):
 
 
 		if(int(pop) <= 20):
-			print("Attenzione la popolazione e a 0")
+			print("Attenzione la popolazione e bassa")
 			br.execute_script("BuildingMain.buildBuilding('farm', 20);")
 
 
@@ -193,29 +196,35 @@ while(True):
 			senato = br.find_element_by_xpath("//*[@id='building_main_area_main']")
 			senato.click()
 			print("visuale senato")
+			err_senato = False
 			time.sleep(2)
 		except:
 			print("visuale senato non disponibile")
-
-		edifici = br.find_elements_by_css_selector(".white")
-		print("edifici ")
-		#print edifici
-
-		cnt_ed = 0
-		for ed in edifici:
-			matrix_buildings_real[n_city][cnt_ed] = int(ed.text)
-			cnt_ed += 1
+			err_senato = True
 
 
-		print matrix_buildings[n_city]
-		print matrix_buildings_real[n_city]
+		if(err_senato==False):
+			edifici = br.find_elements_by_css_selector(".white")
+			print("edifici ")
+			#print edifici
 
-		for num_edificio in range(0, 13):
-			if(matrix_buildings_real[n_city][num_edificio] < matrix_buildings[0][num_edificio]):
-				print("Edificio "+ nomi_ita[num_edificio] +" sottosviluppato")
-				comando_up = "BuildingMain.buildBuilding('"+nomi[num_edificio]+"', 50);"
-				br.execute_script(comando_up)
-				#print("Sviluppo edificio "+ nomi[num_edificio] +" sottosviluppato")
+			cnt_ed = 0
+			for ed in edifici:
+				matrix_buildings_real[n_city][cnt_ed] = int(ed.text)
+				cnt_ed += 1
+
+
+			print matrix_buildings[n_city]
+			print matrix_buildings_real[n_city]
+
+			for num_edificio in range(0, 13):
+				if(matrix_buildings_real[n_city][num_edificio] < matrix_buildings[0][num_edificio]):
+					print("Edificio "+ nomi_ita[num_edificio] +" sottosviluppato")
+					comando_up = "BuildingMain.buildBuilding('"+nomi[num_edificio]+"', 50);"
+					br.execute_script(comando_up)
+					#print("Sviluppo edificio "+ nomi[num_edificio] +" sottosviluppato")
+
+
 
 		webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
 
@@ -297,11 +306,13 @@ while(True):
     if(tempo_attesa < 5):
         tempo_attesa = 5
 
-    tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*19/7
+    tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*19/7+12
 
     print("prossimo giro tra: " + str(tempo_attesa) + " + " + str(tempo_r) + " secondi")
 
     for i in range(0, int(tempo_attesa + tempo_r)):
         print(int(tempo_attesa + tempo_r - i))
+        sys.stdout.write("\033[F") # Cursor up one line
         time.sleep(1)
+    print("-------------------------------------------------------------\n\n----------------------------------------------------------")
 
