@@ -10,9 +10,9 @@ from random import randint
 #MODIFICA QUESTI PARAMETRI
 ###############
 numero_citta = 2
-citta_riferimento = "44.01"
-username = "fedrun"
-password = "drnfrc97"
+citta_riferimento = ""
+username = ""
+password = ""
 
 
 
