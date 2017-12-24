@@ -9,10 +9,10 @@ from random import randint
 ###############
 #MODIFICA QUESTI PARAMETRI
 ###############
-numero_citta = 1
-citta_riferimento = ""
-username = ""
-password = ""
+numero_citta = 2
+citta_riferimento = "44.01"
+username = "fedrun"
+password = "drnfrc97"
 
 
 
@@ -76,6 +76,15 @@ def next_town(br):
 
 
 
+def allinea_citta(br):
+	#allinea citta
+	while(True):
+		if get_nome_citta(br) == citta_riferimento:
+			print("trovata")
+			break
+		else:
+			next_town(br)
+
 
 
 br = webdriver.Chrome()
@@ -119,21 +128,8 @@ try:
     search = br.find_element_by_css_selector(".js-tooltip-resources div")
     search.click()
     time.sleep(5)
-except NoSuchElementException:
+except:
     print("Nessun bonus giornaliero")
-
-
-
-
-
-#allinea citta
-while(True):
-    if get_nome_citta(br) == citta_riferimento:
-        print("trovata")
-        break
-    else:
-        next_town(br)
-
 
 
 
@@ -151,6 +147,10 @@ while(True):
             a += 1
     except:
         print("gia all'interno del gioco")
+
+
+
+	allinea_citta(br)
 
 
     for n_city in range(0, numero_citta):
