@@ -4,12 +4,13 @@ from selenium.webdriver.common.keys import Keys
 import time
 import sys
 from random import randint
+from selenium.webdriver.chrome.options import Options
 
 
 ###############
 #MODIFICA QUESTI PARAMETRI
 ###############
-numero_citta = 2
+numero_citta = 20
 citta_riferimento = ""
 username = ""
 password = ""
@@ -29,8 +30,10 @@ matrix_buildings_real = [[0 for i in xrange(15)] for i in xrange(numero_citta)]
 
 
 matrix_buildings = [
-	[20, 10, 15, 10, 10, 10, 10, 10, 0, 20, 30, 28, 10, 0, 0],#per arrivare alla conquista piu infretta possibile
-	[14, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 14, 10, 0, 0],#per arrivare alla coloniale piu infretta possibile
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],#coda bloccata, risparmio energie
+	#[21, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 33, 10, 0, 0],#per arrivare alla coloniale piu infretta possibile
+	#[20, 10, 15, 10, 10, 10, 10, 10, 0, 20, 30, 28, 10, 0, 0],#per arrivare alla conquista piu infretta possibile
+	[21, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 14, 10, 0, 0],#per arrivare alla coloniale piu infretta possibile
 
 	[24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
 	[24, 10, 40, 40, 40, 17, 20, 20, 25, 25, 45, 30, 17, 1, 1],
@@ -63,31 +66,38 @@ def get_nome_citta(br):
 
 
 def next_town(br):
-    try:
-        search = br.find_element_by_css_selector(".btn_next_town")
-        search.click()
-        search = br.find_element_by_css_selector(".btn_jump_to_town")
-        search.click()
-        print(get_nome_citta(br))
-        print("prossima citta")
-        time.sleep(rand_time())
-    except:
-        print("impossibile cambiare citta")
+	try:
+		search = br.find_element_by_css_selector(".btn_next_town")
+		search.click()
+		search = br.find_element_by_css_selector(".btn_jump_to_town")
+		search.click()
+		print(get_nome_citta(br))
+		print("prossima citta")
+		time.sleep(rand_time())
+	except:
+		print("impossibile cambiare citta")
 
 
 
 def allinea_citta(br):
+	print("allineoooo")
 	#allinea citta
 	while(True):
-		if get_nome_citta(br) == citta_riferimento:
+		if(get_nome_citta(br) == citta_riferimento):
 			print("trovata")
 			break
 		else:
 			next_town(br)
+			print("...")
 
 
 
+#options = webdriver.ChromeOptions() 
+#options.add_argument("user-data-dir=/home/kinder/.config/google-chrome") #Path to your chrome profile
+#br = webdriver.Chrome(executable_path="/usr/bin/chromedriver", chrome_options=options)
 br = webdriver.Chrome()
+
+#
 
 
 TEMPO = 600 # 5 minuti di tempo refrattario
@@ -114,9 +124,9 @@ time.sleep(5)
 search = br.find_elements_by_css_selector(".world_name div")
 a = 0
 for i in search:
-    if(a == 1):#NUMERO DEL MONDO CHE COMPARE IN ORDINE NELLA SCHERMATA DOPO LOGIN
-        i.click()
-    a += 1
+	if(a == 2):#NUMERO DEL MONDO CHE COMPARE IN ORDINE NELLA SCHERMATA DOPO LOGIN
+		i.click()
+	a += 1
 
 
 print("Avvio Gioco")
@@ -125,42 +135,51 @@ time.sleep(3)
 
 
 try:
-    search = br.find_element_by_css_selector(".js-tooltip-resources div")
-    search.click()
-    time.sleep(5)
+	search = br.find_element_by_css_selector(".js-tooltip-resources div")
+	search.click()
+	time.sleep(5)
 except:
-    print("Nessun bonus giornaliero")
+	print("Nessun bonus giornaliero")
 
 
 
 
 while(True):
 
-    try:
-        search = br.find_elements_by_css_selector(".world_name div")
-        a = 0
-        for i in search:
-            if(a == 1):
-                i.click()
-                print("Avvio Gioco")
-                time.sleep(10)
-            a += 1
-    except:
-        print("gia all'interno del gioco")
+	try:
+		search = br.find_elements_by_css_selector(".world_name div")
+		a = 0
+		for i in search:
+			if(a == 2):
+				i.click()
+				print("Avvio Gioco")
+				time.sleep(10)
+			a += 1
+	except:
+		print("gia all'interno del gioco")
 
 
 
-	allinea_citta(br)
+	print("allineoooo")
+	#allinea citta
+	while(True):
+		if(get_nome_citta(br) == citta_riferimento):
+			print("trovata")
+			break
+		else:
+			next_town(br)
+			print("...")
 
-
-    for n_city in range(0, numero_citta):
-		time.sleep(1)
+	start = time.time()
+	for n_city in range(0, numero_citta):
+		time.sleep(2)
 		print(get_nome_citta(br))
 
 		try:
 			search = br.find_element_by_css_selector(".city_overview div")
 			search.click()
 			print("visuale citta")
+			time.sleep(2)
 		except:
 			print("visuale citta non disponibile")
 
@@ -191,7 +210,7 @@ while(True):
 			print("Attenzione la popolazione e bassa")
 			br.execute_script("BuildingMain.buildBuilding('farm', 20);")
 
-
+		time.sleep(2)
 		try:
 			senato = br.find_element_by_xpath("//*[@id='building_main_area_main']")
 			senato.click()
@@ -247,7 +266,7 @@ while(True):
 		search = br.find_elements_by_xpath("//*[@data-same_island='true']")
 		print(len(search))
 		i = 0
-		start = time.time()
+		
 		for sc in search:
 
 			print("agisco sul villaggio " + str(i + 1))
@@ -299,20 +318,24 @@ while(True):
 		next_town(br)
 
 
-    end = time.time()
-    print("tempo impiegato: " + str(int(end - start)))
+	end = time.time()
+	print("tempo impiegato: " + str(int(end - start)))
 
-    tempo_attesa = TEMPO - (int(end - start))*0.85
-    if(tempo_attesa < 5):
-        tempo_attesa = 5
+	tempo_attesa = TEMPO - (int(end - start))*0.80
+	if(tempo_attesa < 5):
+		tempo_attesa = 5
 
-    tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*19/7+12
+	tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*19/7+20
 
-    print("prossimo giro tra: " + str(tempo_attesa) + " + " + str(tempo_r) + " secondi")
+	print("prossimo giro tra: " + str(tempo_attesa) + " + " + str(tempo_r) + " secondi")
 
-    for i in range(0, int(tempo_attesa + tempo_r)):
-        print(int(tempo_attesa + tempo_r - i))
-        sys.stdout.write("\033[F") # Cursor up one line
-        time.sleep(1)
-    print("-------------------------------------------------------------\n\n----------------------------------------------------------")
+	for i in range(0, int(tempo_attesa + tempo_r)):
+		print(int(tempo_attesa + tempo_r - i))
+		if(int(tempo_attesa + tempo_r - i) == 100 or int(tempo_attesa + tempo_r - i) == 10):
+			sys.stdout.write("\033[K")
+		else:
+			sys.stdout.write("\033[F") # Cursor up one line
+
+		time.sleep(1)
+	print("-------------------------------------------------------------\n\n----------------------------------------------------------")
 
