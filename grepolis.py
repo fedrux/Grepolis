@@ -11,12 +11,14 @@ from selenium.webdriver.chrome.options import Options
 #MODIFICA QUESTI PARAMETRI
 ###############
 numero_citta = 10
-citta_riferimento = "ref"
+citta_riferimento = ""
 username = ""
 password = ""
 
 
+TEMPO = 10*60 # 5 minuti di tempo refrattario
 
+OPZIONE_NUM = 0 # da 0 a 3 rispettivamente 5-20-180-480 min
 
 ##############
 #INIZIO
@@ -25,7 +27,8 @@ password = ""
 br = webdriver.Chrome()
 """
 options = webdriver.ChromeOptions() 
-options.add_argument("user-data-dir=/home/fede3/.config/google-chrome/Default");
+options.add_argument("user-data-dir=/home/fede3/.config/google-chrome/Default")
+options.add_extension('/home/fede3/.config/google-chrome/Default/Extensions/dhdgffkkebhmkfjojejmpbldmpobfkfo/4.7_0/')
 
 br = webdriver.Chrome(chrome_options=options)
 """
@@ -35,32 +38,42 @@ nomi_ita = ["senato", "caverna", "legno", "pietra", "argento", "mercato", "porto
 nomi = ["main", "hide", "lumber", "stoner", "ironer", "market", "docks", "barraks", "wall", "storage", "farm", "academy", "temple", "terme", "torre"]
 
 matrix_buildings_real = [[0 for i in range(15)] for i in range(numero_citta)]
+matrix_caserma_real = [[0 for i in range(10)] for i in range(numero_citta)]
+matrix_porto_real = [[0 for i in range(10)] for i in range(numero_citta)]
 
 
 matrix_buildings = [
-	# corretta --> [17, 10, 20, 20, 21, 10, 15, 10, 0, 25, 45, 30, 17, 0, 0],
-
-	#coda bloccata, risparmio energie
-	#[21, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 33, 10, 0, 0],#per arrivare alla coloniale piu infretta possibile
-	#[20, 10, 15, 10, 10, 10, 10, 10, 0, 20, 30, 28, 10, 0, 0],#per arrivare alla conquista piu infretta possibile
+	# corretta --> |
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],#[17, 10, 16, 16, 16, 8, 12, 10, 20, 30, 25, 30, 15, 0, 0], # full off
+	[16, 10, 16, 16, 16, 7, 11, 10, 20, 30, 0, 30, 15, 0, 0], # full def
+	[0, 0, 0, 0, 0, 0, 15, 0, 20, 0, 0, 16, 0, 0, 0],#[17, 10, 25, 16, 16, 5, 20, 5, 20, 30, 45, 30, 15, 0, 0], #full ince
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0],
+	#[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],#coda bloccata, risparmio energie
+	
+	#[15, 10, 15, 10, 10, 0, 10, 10, 0, 15, 20, 33, 10, 0, 0],#per arrivare alla coloniale piu infretta possibile
+	#[17, 10, 15, 10, 10, 10, 10, 10, 0, 20, 30, 28, 15, 0, 0],#per arrivare alla conquista piu infretta possibile
 
 	#[17, 10, 20, 20, 21, 10, 15, 10, 0, 25, 45, 30, 17, 0, 0],
 
 	#[17, 10, 20, 20, 21, 10, 15, 10, 0, 25, 45, 30, 17, 0, 1],
-	[10, 10, 15, 10, 10, 5, 15, 5, 0, 25, 15, 30, 17, 0, 0],#cresci veloce
+	#[10, 10, 15, 10, 10, 5, 15, 5, 0, 16, 15, 30, 15, 0, 0],#cresci veloce
 	
 ]
 
 matrix_caserma = [
-    [0, 0, 0, 0, 0, 0, 0, 0, 50, 0], # full manticore
-    [0, 500, 0, 0, 0, 0, 0, 0, 0, 0], #full mare
-    #[500, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 800, 0, 0, 100, 0, 20, 0, 50, 0], # full off e manticore
+    [1000, 0, 0, 120, 0, 0, 0, 0, 0, 0], #full def
+    [0, 600, 0, 0, 200, 0, 20, 0, 0, 0], #full off
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], #full birre
+   # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], # full ince
 ]
 
 matrix_porto = [
-    [0, 0, 40, 0, 0, 0, 0, 0, 0, 0], # full manticore
-   # [0, 0, 330, 0, 0, 0, 0, 0, 0, 0], #full ince
-   # [0, 200, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 70, 0, 50, 0, 0, 0, 0, 0], # full manticore
+	[0, 60, 0, 0, 50, 0, 0, 0, 0, 0], #full def
+	[0, 0, 70, 0, 50, 0, 0, 0, 0, 0],#full off
+	[0, 99999, 0, 0, 0, 0, 0, 0, 0, 0], #full birre
+	#[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ]
 
 
@@ -68,7 +81,7 @@ matrix_porto = [
 
 
 def rand_time():
-    return (0.5 + randint(0, 15)/10)
+    return (0.5 + randint(0, 15)/30)
 
 
 def get_nome_citta(br):
@@ -143,6 +156,10 @@ def missioni_iniziali(br):
 	except:
 		print("visuale missione possibile NON aperta")
 		webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+		
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+
 
 
 def login(br):
@@ -178,45 +195,134 @@ def bonus_giornaliero(br):
 	try:
 		search = br.find_element_by_css_selector(".js-tooltip-resources div")
 		search.click()
-		time.sleep(5)
+		time.sleep(2)
 	except:
 		print("Nessun bonus giornaliero")
 
 
-"""
-def missioni_isola(br):
+
+def recluta_porto(br, n_city):
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+			
 	try:
-		search = br.find_elements_by_css_selector(".island_quest")
-		for s in search:
-			s.click()
-			time.sleep(rand_time())
-			decision_containers = br.find_elements_by_css_selector(".decision_container")
-			for dc in decision_containers:
-				if():
-					dc.click()
-		
-		
-		
-		search.click()
-		time.sleep(rand_time())
-		search = br.find_element_by_css_selector(".gp_item_reward_all")
-		search.click()
-		time.sleep(rand_time())
-		search = br.find_element_by_id("item_reward_stash")
-		search.click()
-		print("missione reward depositata")
-		webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+		br.execute_script("BuildingWindowFactory.open('docks');")
+		#units = br.find_elements_by_id("units div")
+		time.sleep(2)
+
+		units = br.find_elements_by_css_selector(".unit_order_tab .unit_order_total")
+		i = 0
+		for unit in units:
+			if(unit.text ==""): 
+				matrix_porto_real[n_city][i] = 0
+			else:
+				matrix_porto_real[n_city][i] = int(unit.text)
+			i += 1
 	except:
-		print("visuale reward NON aperta")
-		webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+		print("Errore nell'aprire la caserma")
+		
+	print(matrix_porto[n_city])
+	print(matrix_porto_real[n_city])
+	
+	cnt = 0
+	for n_soldato in matrix_porto_real[n_city]:
+		try:
+			div1  = br.find_element_by_id("unit_order")
+			div2 = div1.find_element_by_id("units")
+			nome_barca = div2.find_elements_by_xpath("./div")[cnt].get_attribute("id")
+			
+			if(n_soldato < matrix_porto[n_city][cnt]):
+				print("Barca  "+ nome_barca +" sottosviluppato")
+				
+				comando1 = "UnitOrder.selectUnit('"+nome_barca+"'); return false;"
+				comando_up = "UnitOrder.build(w("+nome_barca+"));"
+				
+				try:
+					br.execute_script(comando1)
+					time.sleep(rand_time()/5)
+					br.execute_script(comando_up)
+				except:
+					print("Errore comando barca")
+		except:
+			print("Errore nel trovare alcuni parametri barca")
+		cnt += 1
+
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+					
+	
+
+def recluta_caserma(br, n_city):
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+	try:
+		br.execute_script("BuildingWindowFactory.open('barracks');")
+		time.sleep(2)
+
+		units = br.find_elements_by_css_selector(".unit_order_tab .unit_order_total")
+		i = 0
+		for unit in units:
+			if(unit.text ==""): 
+				matrix_caserma_real[n_city][i] = 0
+			else:
+				matrix_caserma_real[n_city][i] = int(unit.text)
+			i += 1
+	except:
+		print("Errore nell'aprire la caserma")
+		
+	print(matrix_caserma[n_city])
+	print(matrix_caserma_real[n_city])
+	
+	cnt = 0
+	for n_soldato in matrix_caserma_real[n_city]:
+		try:
+			div1  = br.find_element_by_id("unit_order")
+			div2 = div1.find_element_by_id("units")
+			nome_soldato = div2.find_elements_by_xpath("./div")[cnt].get_attribute("id")
+			#print(nome_soldato)
+			
+			if(n_soldato < matrix_caserma[n_city][cnt]):
+				print("Soldato  "+ nome_soldato +" sottosviluppato")
+				
+				comando1 = "UnitOrder.selectUnit('"+nome_soldato+"'); return false;"
+				comando_up = "UnitOrder.build(w("+nome_soldato+"));"
+				
+				try:
+					br.execute_script(comando1)
+					time.sleep(rand_time()/5)
+					br.execute_script(comando_up)
+				except:
+					print("Errore comando soldato")
+		except:
+			print("Errore nel trovare alcuni parametri soldato")
+		cnt += 1	
+		
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+	webdriver.ActionChains(br).send_keys(Keys.ESCAPE).perform()
+			
+	
+		
+		
+		
+	
 
 
-"""
 
 
 
 
-TEMPO = 5*60 # 5 minuti di tempo refrattario
+
+
+
+
+
+
+
+
+
+
+
+
 
 #start it up
 print("Avvio di chrome....")
@@ -303,6 +409,13 @@ while(True):
 			comando_fattoria_up_dato = False
 
 		time.sleep(2)
+		
+		recluta_porto(br, n_city)
+		time.sleep(2)
+		recluta_caserma(br, n_city)
+		time.sleep(2)
+		
+		
 		err_senato = False
 		try:
 			#senato = br.find_element_by_id("building_main_area_main")#xpath("//*[@id='building_main_area_main']")
@@ -310,7 +423,7 @@ while(True):
 			br.execute_script("BuildingWindowFactory.open('main');")
 			print("visuale senato")
 			err_senato = False
-			time.sleep(2)
+			time.sleep(1)
 		except:
 			print("visuale senato non disponibile")
 			err_senato = True
@@ -331,14 +444,14 @@ while(True):
 			print (matrix_buildings_real[n_city])
 
 			for num_edificio in range(0, 13):
-				if(not(comando_fattoria_up_dato == True and num_edificio == 10)):
-					if(matrix_buildings_real[n_city][num_edificio] < matrix_buildings[0][num_edificio]):
-						print("Edificio "+ nomi_ita[num_edificio] +" sottosviluppato")
-						comando_up = "BuildingMain.buildBuilding('"+nomi[num_edificio]+"', 50);"
-						try:
-							br.execute_script(comando_up)
-						except:
-							print("Errore comando up")
+				#if(not(comando_fattoria_up_dato == True and num_edificio == 10)):
+				if(matrix_buildings_real[n_city][num_edificio] < matrix_buildings[n_city][num_edificio]):
+					print("Edificio "+ nomi_ita[num_edificio] +" sottosviluppato")
+					comando_up = "BuildingMain.buildBuilding('"+nomi[num_edificio]+"', 50);"
+					try:
+						br.execute_script(comando_up)
+					except:
+						print("Errore comando up")
 						#print("Sviluppo edificio "+ nomi[num_edificio] +" sottosviluppato")
 
 
@@ -358,13 +471,13 @@ while(True):
 		except:
 			print("visuale isola non disponibile")
 
-		time.sleep(4)
+		time.sleep(2)
 		
-		missioni_iniziali(br)
+#		missioni_iniziali(br)
 	#	missioni_isola(br)
 
 		search = br.find_elements_by_xpath("//*[@data-same_island='true']")
-		print(len(search))
+		#print(len(search))
 		i = 0
 
 		for sc in search:
@@ -389,8 +502,12 @@ while(True):
 
 
 					try:
-						ele = br.find_element_by_css_selector(".card_click_area")
-						ele.click()
+						ele = br.find_elements_by_css_selector(".card_click_area")
+						n_opz=0
+						for el in ele:
+							if(n_opz == OPZIONE_NUM):	
+								el.click()
+							n_opz+=1
 					except:
 						print("impossibile raccogliere risorse")
 
@@ -417,11 +534,11 @@ while(True):
 	end = time.time()
 	print("tempo impiegato: " + str(int(end - start)))
 
-	tempo_attesa = TEMPO - (int(end - start))*0.80
+	tempo_attesa = TEMPO - (int(end - start))#*0.80
 	if(tempo_attesa < 5):
 		tempo_attesa = 5
 
-	tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*19/7+20
+	tempo_r = rand_time()*3.14+rand_time()*7/5 +rand_time()*19/7+20+13*rand_time()
 
 	print("prossimo giro tra: " + str(tempo_attesa) + " + " + str(tempo_r) + " secondi")
 
